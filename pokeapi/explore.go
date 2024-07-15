@@ -67,9 +67,12 @@ type AreaInfo struct {
 func GetAreaInfo(area string, cache pokecache.Cache) (AreaInfo, error) {
 	address := fmt.Sprint("https://pokeapi.co/api/v2/location-area/", area)
 	if body, exists := cache.Get(address); exists {
-		fmt.Println("--- Fetching from Cache ---")
+		fmt.Println("Fetching area info from cache")
+		fmt.Println("=================")
 		return getAreaInfoFromBody(body)
 	}
+	fmt.Println("Fetching area info from API")
+	fmt.Println("=================")
 	return getAreaInfoFromApi(address, cache)
 }
 
@@ -83,7 +86,6 @@ func getAreaInfoFromApi(address string, cache pokecache.Cache) (AreaInfo, error)
 		return AreaInfo{}, errors.New("Error reading area body")
 	}
 	cache.Add(address, body)
-	fmt.Println("--- Fetching from API ---")
 	time.Sleep(1 * time.Second)
 	return getAreaInfoFromBody(body)
 }

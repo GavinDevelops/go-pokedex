@@ -23,9 +23,12 @@ type Locations struct {
 
 func GetLocations(address string, cache pokecache.Cache) (Locations, error) {
 	if body, exists := cache.Get(address); exists {
-		fmt.Println("--- Fetching from Cache ---")
+		fmt.Println("Fetching location from cache")
+		fmt.Println("=================")
 		return getLocationsFromBody(body)
 	}
+	fmt.Println("Fetching location from API")
+	fmt.Println("=================")
 	return getLocationsFromApi(address, cache)
 }
 
@@ -39,7 +42,6 @@ func getLocationsFromApi(address string, cache pokecache.Cache) (Locations, erro
 		return Locations{}, errors.New("Error reading response body")
 	}
 	cache.Add(address, body)
-	fmt.Println("--- Fetching from API ---")
 	time.Sleep(1 * time.Second)
 	return getLocationsFromBody(body)
 }

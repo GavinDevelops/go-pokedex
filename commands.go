@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 
@@ -21,6 +22,7 @@ type Config struct {
 	next     string
 	previous string
 	cache    *pokecache.Cache
+	pokedex  map[string]pokeapi.Pokemon
 }
 
 func commandHelp(config *Config, args string) error {
@@ -76,11 +78,29 @@ func commandExplore(config *Config, area string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("=================")
 	fmt.Printf("Exploring %v...\n", area)
+	fmt.Println("=================")
 	fmt.Println("Found Pokemon:")
 	for _, pokemon := range areaInfo.PokemonEncounters {
 		fmt.Println("  -", pokemon.Pokemon.Name)
 	}
+	return nil
+}
+
+func commandCatch(config *Config, name string) error {
+	pokemon, err := pokeapi.GetPokemon(name, *config.cache)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Throwing a Pokeball at %v...\n", pokemon.Name)
+	randNum := rand.Intn(pokemon.BaseExperience)
+	if randNum < pokemon.BaseExperience/2 {
+		fmt.Printf("%v escaped!\n", pokemon.Name)
+		return nil
+	}
+	fmt.Printf("%v was caught!\n", pokemon.Name)
+	config.pokedex[pokemon.Name] = pokemon
 	return nil
 }
 
@@ -106,15 +126,21 @@ func getCommands(config *Config) map[string]cliCommand {
 			config:      config,
 		},
 		"mapb": {
-			name:        "map",
-			description: "Get the next 20 locations",
+			name:        "mapb",
+			description: "Get the previous 20 locations",
 			callback:    commandMapB,
 			config:      config,
 		},
 		"explore": {
 			name:        "explore",
-			description: "Explore area defined by explore [area]",
+			description: "Explore area usage: explore [area]",
 			callback:    commandExplore,
+			config:      config,
+		},
+		"catch": {
+			name:        "catch",
+			description: "Catch a Pokemon usage: catch [pokemon name]",
+			callback:    commandCatch,
 			config:      config,
 		},
 	}

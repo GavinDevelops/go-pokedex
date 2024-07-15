@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/GavinDevelops/pokecache"
+	pokeapi "github.com/GavinDevelops/pokedexcli/commands"
 )
 
 func main() {
@@ -12,6 +13,7 @@ func main() {
 		next:     "https://pokeapi.co/api/v2/location-area/",
 		previous: "",
 		cache:    &cache,
+		pokedex:  make(map[string]pokeapi.Pokemon),
 	}
 	startRepl(&config)
 }
