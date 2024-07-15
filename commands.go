@@ -13,7 +13,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(config *Config) error
+	callback    func(config *Config, parameters string) error
 	config      *Config
 }
 
@@ -23,7 +23,7 @@ type Config struct {
 	cache    *pokecache.Cache
 }
 
-func commandHelp(config *Config) error {
+func commandHelp(config *Config, args string) error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Println("Usage:")
 	fmt.Println("")
@@ -33,12 +33,12 @@ func commandHelp(config *Config) error {
 	return nil
 }
 
-func commandExit(config *Config) error {
+func commandExit(config *Config, args string) error {
 	os.Exit(0)
 	return nil
 }
 
-func commandMap(config *Config) error {
+func commandMap(config *Config, args string) error {
 	loc, err := pokeapi.GetLocations(config.next, *config.cache)
 	if err != nil {
 		return err
@@ -51,7 +51,7 @@ func commandMap(config *Config) error {
 	return nil
 }
 
-func commandMapB(config *Config) error {
+func commandMapB(config *Config, args string) error {
 	if config.previous == "" {
 		return errors.New("Error going back")
 	}
@@ -71,7 +71,16 @@ func commandMapB(config *Config) error {
 	return nil
 }
 
-func commandExplor(config *Config) error {
+func commandExplore(config *Config, area string) error {
+	areaInfo, err := pokeapi.GetAreaInfo(area, *config.cache)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Exploring %v...\n", area)
+	fmt.Println("Found Pokemon:")
+	for _, pokemon := range areaInfo.PokemonEncounters {
+		fmt.Println("  -", pokemon.Pokemon.Name)
+	}
 	return nil
 }
 
@@ -100,6 +109,12 @@ func getCommands(config *Config) map[string]cliCommand {
 			name:        "map",
 			description: "Get the next 20 locations",
 			callback:    commandMapB,
+			config:      config,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Explore area defined by explore [area]",
+			callback:    commandExplore,
 			config:      config,
 		},
 	}
