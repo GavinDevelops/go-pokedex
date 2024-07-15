@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func startRepl() {
-	cmds := getCommands()
+func startRepl(config *Config) {
+	cmds := getCommands(config)
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
@@ -22,7 +22,7 @@ func startRepl() {
 		commandName := words[0]
 		command, exists := cmds[commandName]
 		if exists {
-			err := command.callback()
+			err := command.callback(command.config)
 			if err != nil {
 				fmt.Println(err)
 			}

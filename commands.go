@@ -1,42 +1,100 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
+
+	pokeapi "github.com/GavinDevelops/pokedexcli/commands"
 )
 
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(config *Config) error
+	config      *Config
 }
 
-func commandHelp() error {
+type Config struct {
+	next     string
+	previous string
+}
+
+func commandHelp(config *Config) error {
 	fmt.Println("Welcome to the Pokedex!")
-	fmt.Println("Usage:\n")
-	for _, value := range getCommands() {
+	fmt.Println("Usage:")
+	fmt.Println("")
+	for _, value := range getCommands(nil) {
 		fmt.Printf("%s: %s\n", value.name, value.description)
 	}
 	return nil
 }
 
-func commandExit() error {
+func commandExit(config *Config) error {
 	os.Exit(0)
 	return nil
 }
 
-func getCommands() map[string]cliCommand {
+func commandMap(config *Config) error {
+	loc, err := pokeapi.GetLocations(config.next)
+	if err != nil {
+		return err
+	}
+	for _, result := range loc.Results {
+		fmt.Println(result.Name)
+	}
+	config.previous = config.next
+	config.next = loc.Next
+	return nil
+}
+
+func commandMapB(config *Config) error {
+	if config.previous == "" {
+		return errors.New("Error going back")
+	}
+	loc, err := pokeapi.GetLocations(config.previous)
+	if err != nil {
+		return err
+	}
+	for _, result := range loc.Results {
+		fmt.Println(result.Name)
+	}
+	config.next = config.previous
+	if loc.Previous == nil {
+		config.previous = ""
+	} else {
+		config.previous = strings.Clone(*loc.Previous)
+	}
+	return nil
+}
+
+func getCommands(config *Config) map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+			config:      config,
 		},
 		"exit": {
 
 			name:        "exit",
 			description: "Exit the Pokedex",
 			callback:    commandExit,
+			config:      config,
+		},
+		"map": {
+			name:        "map",
+			description: "Get the next 20 locations",
+			callback:    commandMap,
+			config:      config,
+		},
+		"mapb": {
+			name:        "map",
+			description: "Get the next 20 locations",
+			callback:    commandMapB,
+			config:      config,
 		},
 	}
 }

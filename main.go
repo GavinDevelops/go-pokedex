@@ -1,5 +1,9 @@
 package main
 
 func main() {
-	startRepl()
+	config := Config{
+		next:     "https://pokeapi.co/api/v2/location/",
+		previous: "",
+	}
+	startRepl(&config)
 }
