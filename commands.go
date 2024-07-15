@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/GavinDevelops/pokecache"
 	pokeapi "github.com/GavinDevelops/pokedexcli/commands"
 )
 
@@ -19,6 +20,7 @@ type cliCommand struct {
 type Config struct {
 	next     string
 	previous string
+	cache    *pokecache.Cache
 }
 
 func commandHelp(config *Config) error {
@@ -37,7 +39,7 @@ func commandExit(config *Config) error {
 }
 
 func commandMap(config *Config) error {
-	loc, err := pokeapi.GetLocations(config.next)
+	loc, err := pokeapi.GetLocations(config.next, *config.cache)
 	if err != nil {
 		return err
 	}
@@ -53,7 +55,7 @@ func commandMapB(config *Config) error {
 	if config.previous == "" {
 		return errors.New("Error going back")
 	}
-	loc, err := pokeapi.GetLocations(config.previous)
+	loc, err := pokeapi.GetLocations(config.previous, *config.cache)
 	if err != nil {
 		return err
 	}
@@ -66,6 +68,10 @@ func commandMapB(config *Config) error {
 	} else {
 		config.previous = strings.Clone(*loc.Previous)
 	}
+	return nil
+}
+
+func commandExplor(config *Config) error {
 	return nil
 }
 

@@ -11,6 +11,7 @@ func startRepl(config *Config) {
 	cmds := getCommands(config)
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
+		fmt.Println("=================")
 		fmt.Print("Pokedex > ")
 		scanner.Scan()
 
@@ -18,6 +19,7 @@ func startRepl(config *Config) {
 		if len(words) == 0 {
 			continue
 		}
+		fmt.Println("=================")
 
 		commandName := words[0]
 		command, exists := cmds[commandName]
