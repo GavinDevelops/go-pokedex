@@ -104,6 +104,34 @@ func commandCatch(config *Config, name string) error {
 	return nil
 }
 
+func commandInspect(config *Config, name string) error {
+	pokemon, exists := config.pokedex[name]
+	if !exists {
+		fmt.Println("You have not caught that Pokemon!")
+		return nil
+	}
+	fmt.Printf("Name: %s\n", pokemon.Name)
+	fmt.Printf("Height: %v\n", pokemon.Height)
+	fmt.Printf("Weight: %v\n", pokemon.Weight)
+	fmt.Println("Stats:")
+	for _, stat := range pokemon.Stats {
+		fmt.Printf("  - %v: %v\n", stat.Stat.Name, stat.BaseStat)
+	}
+	fmt.Println("Types:")
+	for _, t := range pokemon.Types {
+		fmt.Printf("  - %v\n", t.Type.Name)
+	}
+	return nil
+}
+
+func commandPokedex(config *Config, arg string) error {
+	fmt.Println("Your Pokedex:")
+	for key, _ := range config.pokedex {
+		fmt.Printf("  - %v\n", key)
+	}
+	return nil
+}
+
 func getCommands(config *Config) map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
@@ -141,6 +169,18 @@ func getCommands(config *Config) map[string]cliCommand {
 			name:        "catch",
 			description: "Catch a Pokemon usage: catch [pokemon name]",
 			callback:    commandCatch,
+			config:      config,
+		},
+		"inspect": {
+			name:        "inspect",
+			description: "Inspect a caught pokemon usage: catch [pokemon name]",
+			callback:    commandInspect,
+			config:      config,
+		},
+		"pokedex": {
+			name:        "pokedex",
+			description: "List all pokemon in your pokedex",
+			callback:    commandPokedex,
 			config:      config,
 		},
 	}
